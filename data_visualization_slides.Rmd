@@ -1,0 +1,1946 @@
+---
+title: "Data visualization in R"
+subtitle: "Using `ggplot`"
+author: "Elena Quintero"
+institute: "Estación Biológica de Doñana"
+date: "19 Septiembre, 2021"
+output:
+  xaringan::moon_reader:
+    seal: false
+    lib_dir: libs
+    css:
+      - xaringan-themer.css
+      #- default
+    nature:
+      highlightStyle: tomorrow
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: "16:9"
+
+---
+
+name: title
+
+class: inverse, center, middle
+
+<style>
+h1{
+  margin-bottom: 15px;
+}
+h2{
+  margin-bottom: 5px;
+}
+h3{
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+p{
+  margin-top: 10px;
+}
+</style>
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+
+library(xaringanthemer)
+# xaringan:::inf_mr() #Addin to preview slides
+
+style_mono_light(
+  base_color = "#4E5C87", #"#848EB7",
+  header_font_google = google_font("Cabinet Grotesk Bold"),
+  text_font_google   = google_font("Quattrocento Sans"),
+  text_font_size = "1.1rem",
+  code_inline_color = "#ec7014",
+  code_inline_background_color = "#DADADA",
+  code_highlight_color = "#fdbb84",
+  footnote_color = "#ec7014",
+  footnote_position_bottom = "30px"
+)
+
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.retina = 3)
+```
+
+#  Visualización de datos en R 
+# <span style = "font-family: Courier New, monospace">ggplot</span style>
+
+&nbsp;
+
+<font size ="6">.large[Elena Quintero | Curso R AEET | 20 Sept 2022]
+
+---
+
+# Paquetes necesarios:
+
+```{r, eval=F}
+install.packages(c("here",
+                   "tidyverse", 
+                   "patchwork",
+                   "RColorBrewer"))
+```
+
+---
+
+# Paquetes necesarios:
+
+```{r, message=F, warning=FALSE}
+library(here)           #refiere la ruta a la carpeta del proyecto
+library(tidyverse)      #incluye la librería ggplot2
+library(ggplot2)        #VISUALIZACIÓN DE DATOS
+library(RColorBrewer)   #paletas de color 
+library(plotly)         #hacer los gráficos interactivos
+library(patchwork)      #combinar gráficos de ggplot
+```
+
+---
+
+# Beneficios de usar `library(ggplot2)`
+
+&nbsp;
+
+- Reproducible
+
+- Consistencia gramática
+
+- Muy flexible y permite controlar gran cantidad de detalles
+
+- Fácil para uso básico
+
+- Comunidad de usuarios activos
+
+---
+
+class: bottom
+background-image: url("https://raw.githubusercontent.com/BlakeRMills/TidyTuesday/main/2022/Dog%20Breeds%20(1%20Feb%202022)/DogPlot.png")
+background-size: contain
+
+[Blake Robert Mills](https://www.blakerobertmills.com/my-work/visualizations)
+|
+[code here](https://acortar.link/AV8eUw)
+
+---
+
+class: bottom
+background-image: url(https://lauranavarroviz.files.wordpress.com/2020/08/penguinsbill_plot_final.png?w=1017)
+background-size: contain
+
+[Laura Navarro](https://lauranavarroviz.wordpress.com/2020/08/01/palmer-penguins/)
+| 
+[code here](https://github.com/lau-cloud/TidyTuesdaycode/blob/master/palmer_penguins.R)
+
+---
+
+class: bottom
+background-image: url(https://mir-s3-cdn-cf.behance.net/project_modules/1400_opt_1/44a415100683383.631e30537753e.png)
+background-size: contain
+
+[Cédric Scherer](https://www.cedricscherer.com/)
+|
+[code here](https://www.behance.net/gallery/100683383/Travelling-to-Outer-Space)
+
+---
+
+class: bottom
+background-image: url(https://pbs.twimg.com/media/FGDPM_hXIAAac-k?format=jpg&name=4096x4096)
+background-size: contain
+
+[Blake Robert Mills](https://www.blakerobertmills.com/my-work/visualizations)
+|
+[code here](https://acortar.link/G4FZWa)
+
+---
+
+class: bottom
+background-image: url(https://jakelawlor.github.io/images/portfolio/tt_feb20_co2.png)
+background-size: contain
+
+[Jake Lawlor](https://jakelawlor.github.io/portfolio/)
+|
+[code here](https://github.com/jakelawlor/TidyTuesday_JL/blob/master/CodeFiles/Feb.18.20.CO2Food.R)
+
+---
+
+class: bottom
+background-image: url(https://timogrossenbacher.ch/wp-content/uploads/2016/12/tm-final-map-1-1.png)
+background-size: contain
+
+[Timo Grossenbacher](https://timogrossenbacher.ch/2016/12/beautiful-thematic-maps-with-ggplot2-only/)
+|
+[code here](https://github.com/grssnbchr/thematic-maps-ggplot2)
+
+---
+
+class: bottom
+background-image: url(https://raw.githubusercontent.com/Z3tt/30DayMapChallenge/master/contributions/Day03_Polygons/Polygons_GlobalMortality.png)
+background-size: contain
+
+[Cédric Scherer](https://www.cedricscherer.com/)
+|
+[code here](https://github.com/z3tt/30DayMapChallenge2019/blob/main/contributions/Day03_Polygons/3_Polygons.Rmd)
+
+---
+
+class: center, middle
+
+<img src="https://raw.githubusercontent.com/koenderks/aRtsy/development/png/petris/2022-04-04.png", width=25%>
+<img src="https://raw.githubusercontent.com/koenderks/aRtsy/development/png/squares/2021-02-28.png", width=25%>
+<img src="https://raw.githubusercontent.com/koenderks/aRtsy/development/png/gemstones/2021-08-20.png", width=25%>
+<img src="https://raw.githubusercontent.com/koenderks/aRtsy/development/png/watercolors/2021-09-22.png", width=25%>
+<img src="https://raw.githubusercontent.com/koenderks/aRtsy/development/png/functions/2021-03-17.png", width=25%>
+<img src="https://raw.githubusercontent.com/koenderks/aRtsy/development/png/nebulas/2021-08-29.png", width=25%>
+
+[aRtsy: Generative Art with R and ggplot2](https://koenderks.github.io/aRtsy/)
+
+---
+
+## Gramática de `ggplot`
+
+Basado en la gramática *layered grammar of graphics* - Bertin 1983, Wilkinson et al. 2005, Wickham 2010.
+
+<img src = "http://r.qcbs.ca/workshop03/book-en/images/gglayers.png", width=50%>
+
+[Illustration QCBS R workshop series](http://r.qcbs.ca/workshop03/book-en/grammar-of-graphics-gg-basics.html)
+
+---
+
+## Capas:
+
+- <font color="#ec7014">Data</font> - *dataset a graficar; necesita formato tidy data*
+
+- <font color="#ec7014">Aesthetics</font> - *describe cómo se asignan las variables del dataset (y sus escalas) a las propiedades visuales* (x, y, size, colour, fill, group, sise, shape. . . )
+
+- <font color="#ec7014">Geometries</font> - *determina la forma de representar los datos* (geoms: points, lines, bars, boxplot. . . )
+
+- Scales - *maneja las escalas de los aesthetics* (x & y format, colors continuous or discrete, sizes, shapes. . . )
+
+- Facets - *crea subplots* (facet_wrap or facet_grid. . . )
+
+- Themes - *apariencia general del gráfico, no ligada a los datos* (title, x.axis.text, legend. . . )
+
+- Statistics - *resume los datos con estadísticos. Muchas veces ya va implícito en el "geom"* (stats: count, density, bins, means, density. . . )
+
+- Coordinate system - *determina el sistema de coordenadas a usar en los ejes * (cartesian, polar, map projections. . . )
+
+&nbsp;
+
+<font color="#ec7014">*Capas necesarias</font>
+
+---
+
+class:bottom
+background-image: url(https://raw.githubusercontent.com/allisonhorst/stats-illustrations/main/rstats-artwork/ggplot2_masterpiece.png)
+background-size: contain
+
+[Allison Horst Illustration](https://github.com/allisonhorst/stats-illustrations)
+
+---
+
+.pull-left[
+
+<font size="5">[https://biotime.st-andrews.ac.uk/](https://biotime.st-andrews.ac.uk/)
+
+![](../img/bioTIME.png)
+
+<font size="4">Dornelas M, Antão LH, Moyes F, Bates, AE, Magurran, AE, et al. BioTIME: A database of biodiversity time series for the Anthropocene. Global Ecol Biogeogr. 2018; 27:760 - 786. https://doi.org/10.1111/geb.12729
+
+]
+
+.pull-right[
+
+![](../img/butterfly_dataset.png)
+
+<font size="4">Bonebrake, T.C., Pickett, E.J., Tsang, T.P., Tak, C.Y., Vu, M.Q. & Van Vu, L. (2016) Warming threat compounds habitat degradation impacts on a tropical butterfly community in Vietnam. Global Ecology and Conservation, 8, 203-211. http://dx.doi.org/10.1016/j.gecco.2016.09.003
+
+]
+
+---
+
+## Leer dataset
+
+```{r}
+library(readr)
+but <- read_csv(here("data/butterfly_dataset.csv"))
+```
+
+---
+
+```{r}
+glimpse(but)
+```
+
+---
+
+Convertir variable a formato fecha:
+```{r}
+but <- but %>%
+  mutate(date = str_c(year, "-", month, "-", day)) %>%
+  mutate(date = as.Date(date, format = "%Y-%m-%d")) 
+```
+
+---
+
+Convertir datos a formato fecha:
+
+```{r}
+glimpse(but) 
+```
+
+---
+
+**Resumir datos:**
+
+Calcular número de especies detectadas y abundancia total de mariposas por muestreo. 
+
+De forma que cada fila representa un día de muestreo en un sitio concreto.
+
+```{r}
+but_sum <- but %>%
+  group_by(plot, habitat, hab_type, date) %>%
+  summarise(n_species = n(), 
+            abundance = sum(abundance))
+```
+
+```{r, eval=F}
+#but_sum <- read_csv(here("data/buttefly_summary.csv"))
+```
+
+---
+
+### 1. Data
+
+Dar a ggplot el dataset
+
+.pull-left[
+```{r empty_plot, results='hide', fig.show = 'hide'}
+ggplot(data = but_sum)
+```
+]
+
+.pull-right[
+```{r ref.label = 'empty_plot', echo = FALSE, message=F}
+```
+]
+
+---
+
+### 2. Aesthetics
+
+Definir los aesthetics (variables a visualizar)
+
+.pull-left[
+```{r aesthetics, results='hide', fig.show = 'hide'}
+ggplot(but_sum, aes(x = date, 
+                    y = abundance))
+```
+]
+
+.pull-right[
+```{r ref.label = 'aesthetics', echo = FALSE, message=F}
+```
+]
+
+---
+
+### 3. Geoms
+
+Determinar la forma de representar los datos
+
+.pull-left[
+```{r points, results='hide', fig.show = 'hide'}
+ggplot(but_sum, aes(x = date, 
+                    y = abundance)) +
+  geom_point()
+```
+]
+
+.pull-right[
+
+```{r ref.label = 'points', echo = FALSE, message=F}
+```
+]
+
+---
+
+### 3. Geoms
+
+Rasgos de los aesthetics:
+
+- **position** - x and y
+- **shape** - integer/shape name or a single character ("a")
+- **size** - integer (line width in mm)
+- **color and fill** - string ("red", formato hexadecimal = #RRGGBB)
+- **linetype** - integer or string (0 = "blank", 1 = "solid", 2 = "dashed", 3 = "dotted", 4 = "dotdash", 5 = "longdash", 6 = "twodash")
+- **lineend** - string ("round", "butt", or "square") 
+- **linejoin** - string ("round", "mitre", or "bevel") 
+
+<img src = "https://clauswilke.com/dataviz/aesthetic_mapping_files/figure-html/common-aesthetics-1.png", width=60%>
+
+---
+
+### 3. Geoms
+
+Añadir color a los puntos
+
+.pull-left[
+```{r color1, results='hide', fig.show = 'hide'}
+ggplot(but_sum, aes(x = date, 
+                    y = abundance)) +
+  geom_point(color = "orange")
+```
+]
+
+.pull-right[
+
+```{r ref.label = 'color1', echo = FALSE, message=F}
+```
+
+]
+
+---
+
+### 3. Geoms 
+
+Modificar la estética de los puntos
+
+.pull-left[
+```{r color2, results='hide', fig.show = 'hide'}
+ggplot(but_sum, aes(x = date, 
+                    y = abundance)) +
+  geom_point(color = "purple", 
+             shape = "triangle",
+             size = 3.8, 
+             alpha = 0.5)
+```
+]
+
+.pull-right[
+```{r ref.label = 'color2', echo = FALSE, message=F}
+```
+]
+
+---
+
+### 3. Geoms
+
+Definir color basado en una variable
+
+.pull-left[
+```{r color3, results='hide', fig.show = 'hide'}
+ggplot(but_sum, aes(x = date, 
+                    y = abundance, 
+                    color = n_species)) + #<<
+  geom_point()
+```
+]
+
+.pull-right[
+
+```{r ref.label = 'color3', echo = FALSE, message=F}
+```
+]
+
+---
+
+### Ejercicio 1:
+
+Graficar número de especies vs. tiempo, donde el tamaño del punto represente la abundancia de mariposas en el muestreo
+
+---
+
+### Ejercicio 1:
+
+Graficar número de especies vs. tiempo, donde el tamaño del punto represente la abundancia de mariposas en el muestreo
+
+.pull-left[
+```{r ej1, fig.show = 'hide'}
+ggplot(but_sum, aes(x = date, 
+                    y = n_species, 
+                    size = abundance)) +
+  geom_point()
+```
+]
+
+.pull-right[
+```{r ref.label = 'ej1', echo = FALSE, message=F}
+```
+
+]
+
+---
+
+### 4. Scales
+
+Escala continua - dar valores de forma manual
+
+.pull-left[
+```{r scale1, fig.show = 'hide'}
+ggplot(but_sum, aes(x = date, 
+                    y = abundance, 
+                    color = n_species)) +
+  geom_point() + 
+  scale_color_gradient(low = "gold",  #<<
+                       high = "red")  #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'scale1', echo = FALSE, message=F}
+```
+]
+
+---
+
+### 4. Scales
+
+Escala continua - paleta viridis
+
+.pull-left[
+```{r scale.viridis, fig.show = 'hide'}
+ggplot(but_sum, aes(x = date, 
+                    y = abundance, 
+                    color = n_species)) +
+  geom_point() + 
+  scale_color_viridis_b() #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'scale.viridis', echo = FALSE, message=F}
+```
+]
+
+---
+
+### 4. Scales
+
+Paletas de color para ggplot
+
+.pull-left[
+```{r colorbrewer, message=FALSE, warning=FALSE, fig.show = 'hide', results='hide'}
+library(RColorBrewer)
+display.brewer.all(
+  colorblindFriendly = TRUE)
+```
+]
+
+.pull-right[
+```{r ref.label = 'colorbrewer', echo = FALSE, warning = F, message = F}
+```
+]
+
+---
+
+### Paletas de color
+
+.pull-left[
+```{r rcartocolor, message=FALSE, warning=FALSE, fig.show = 'hide', results='hide'}
+library(rcartocolor)
+
+rcartocolor::display_carto_all(
+  colorblind_friendly = TRUE)
+```
+]
+
+.pull-right[
+```{r ref.label = 'rcartocolor', echo = FALSE, warning = F, message = F}
+```
+]
+
+---
+
+### Paletas de color
+
+.pull-left[
+```{r metbrewer, message=FALSE, warning=FALSE, fig.show = 'hide', results='hide'}
+library(MetBrewer)
+
+MetBrewer::display_all()
+#colorblind_only = TRUE
+```
+]
+
+.pull-right[
+```{r ref.label = 'metbrewer', echo = FALSE, warning = F, message = F}
+```
+]
+
+---
+
+### Paletas de color
+
+Addin de RStudio para seleccionar colores.
+
+```{r eval=FALSE}
+library(colourpicker)
+```
+
+<img src = "https://github.com/daattali/colourpicker/raw/master/inst/img/colourpickerscrnshot.png", width = 40%>
+
+https://github.com/daattali/colourpicker
+
+---
+
+### Paletas de color
+
+Páginas web para elegir colores:
+
+- https://colorbrewer2.org/
+- https://projects.susielu.com/viz-palette
+- https://medialab.github.io/iwanthue/
+
+Útil para generar figuras adecuadas para daltonismo.
+
+---
+
+### 4. Scales
+
+Escala de valores continuos
+
+.pull-left[
+```{r scale.brewer1, fig.show = 'hide'}
+ggplot(but_sum, aes(x = date, 
+                    y = abundance, 
+                    color = n_species)) + 
+  geom_point() + 
+  scale_color_distiller(palette = "RdYlBu") #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'scale.brewer1', echo = FALSE, message=F}
+```
+]
+
+---
+
+### 4. Scales
+
+Color basado en una escala discreta (ej. hábitat)
+
+.pull-left[
+```{r scale.discrete, fig.show = 'hide'}
+ggplot(but_sum, aes(x = date, 
+                    y = abundance, 
+                    color = habitat)) + #<<
+  geom_point()
+```
+]
+
+.pull-right[
+```{r ref.label = 'scale.discrete', echo = FALSE, message=F}
+```
+]
+
+---
+
+### 4. Scales
+
+Color basado en una escala discreta - color brewer
+
+.pull-left[
+```{r scale.brewer2, fig.show = 'hide'}
+ggplot(but_sum, aes(x = date, 
+                    y = abundance, 
+                    color = habitat)) +
+  geom_point() + 
+  rcartocolor::scale_color_carto_d("Safe") #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'scale.brewer2', echo = FALSE, message=F}
+```
+]
+
+---
+
+### 4. Scales
+
+Escala discreta - usar valores pre-establecidos manualmente 
+
+.pull-left[
+```{r, fig.show = 'hide'}
+hab_cols <- c("agriculture" = "yellow",
+        "disturbed_forest" = "brown",
+        "closed_forest" = "dark green",
+        "road" = "grey",
+        "secondary_forest" = "light green",
+        "bamboo_forest" = "light blue",
+        "unknown" = "black")
+```
+
+```{r scale.manual2, fig.show = 'hide'}
+ggplot(but_sum, aes(x = date, 
+                    y = abundance, 
+                    color = habitat)) +
+  geom_point() + 
+  scale_color_manual(values = hab_cols) #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'scale.manual2', echo = FALSE, message=F}
+```
+]
+
+---
+
+### 4. Scales
+
+Escala de los ejes
+
+.pull-left[
+```{r scale.cont, fig.show = 'hide'}
+ggplot(but_sum, aes(x = date, 
+                    y = abundance, 
+                    color = n_species)) +
+  geom_point() +
+  scale_y_continuous(n.breaks = 10,
+    minor_breaks = c(550, 650, 750, 850)) #<<
+```
+Otros argumentos útiles: breaks, limits, trans (exp, log...)
+]
+
+.pull-right[
+```{r ref.label = 'scale.cont', echo = FALSE, message=F}
+```
+]
+
+---
+
+### 4. Scales
+
+Escala de los ejes - logarítmica
+
+.pull-left[
+```{r scale.log, fig.show = 'hide'}
+ggplot(but_sum, aes(x = date, 
+                    y = abundance, 
+                    color = n_species)) +
+  geom_point() +
+  scale_y_log10() #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'scale.log', echo = FALSE, message=F}
+```
+]
+
+---
+
+### 4. Scales
+
+Escala de los ejes - en reverso
+
+.pull-left[
+```{r scale.rev, fig.show = 'hide'}
+ggplot(but_sum, aes(x = date, 
+                    y = abundance, 
+                    color = n_species)) +
+  geom_point() +
+  scale_y_reverse() #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'scale.rev', echo = FALSE, message=F}
+```
+]
+
+---
+
+### Ejercicio 2:
+
+Graficar numero de especies vs. abundancia, donde el color del punto represente el tipo de hábitat (forest vs. open).
+
+---
+
+### Ejercicio 2:
+
+Graficar numero de especies vs. abundancia, donde el color del punto represente el tipo de hábitat (forest vs. open).
+
+.pull-left[
+```{r ej2, fig.show = 'hide'}
+ggplot(but_sum, aes(x = n_species, 
+                    y = abundance,
+                    color = hab_type)) + #<<
+  geom_point(alpha = 0.5) + 
+  scale_color_manual(values = 
+         c("dark green", "brown"))
+```
+]
+
+.pull-right[
+```{r ref.label = 'ej2', echo = FALSE, warning=F, message=F}
+```
+]
+
+---
+
+### Ejercicio 2:
+
+Graficar numero de especies ~ abundancia, donde el color del punto represente el tipo de hábitat (forest vs. open).
+
+.pull-left[
+
+Cambiar a escala log-log.
+
+```{r ej2log, fig.show = 'hide'}
+ggplot(but_sum, aes(x = n_species, 
+                    y = abundance,
+                    color = hab_type)) + 
+  geom_point(alpha = 0.5) + 
+  scale_color_manual(values = 
+         c("dark green", "brown")) + 
+  scale_x_log10() + #<<
+  scale_y_log10()   #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'ej2log', echo = FALSE, warning=F, message=F}
+```
+]
+
+---
+
+### Geom - línea de tendencia
+
+.pull-left[
+```{r trend0, fig.show = 'hide'}
+ggplot(but_sum, aes(x = n_species, 
+                    y = abundance)) +
+  geom_point() +
+  geom_smooth() #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'trend0', echo = FALSE, warning=F, message=F}
+```
+]
+
+---
+
+### Geom - línea de tendencia
+
+.pull-left[
+```{r rug, fig.show = 'hide'}
+ggplot(but_sum, aes(x = n_species, 
+                    y = abundance)) +
+  geom_point() +
+  geom_smooth() + 
+  geom_rug() #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'rug', echo = FALSE, warning=F, message=F}
+```
+]
+
+---
+
+### Geom - línea de tendencia
+
+.pull-left[
+```{r trend, fig.show = 'hide'}
+ggplot(but_sum, aes(x = n_species, 
+                    y = abundance,
+                    color = hab_type)) + #<<
+  geom_point() +
+  geom_smooth()
+```
+]
+
+.pull-right[
+```{r ref.label = 'trend', echo = FALSE, warning=F, message=F}
+```
+]
+
+---
+
+### Geom - línea de tendencia
+
+.pull-left[
+```{r trend2, fig.show = 'hide'}
+ggplot(but_sum, aes(x = n_species, 
+                    y = abundance,
+                    color = hab_type)) +
+  geom_point() +
+  geom_smooth(method = "lm") #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'trend2', echo = FALSE, warning=F, message=F}
+```
+]
+
+---
+
+### 5. Scale vs. Geometry 
+
+Limitar la escala del eje vs recortar el eje
+
+.pull-left[
+
+```{r scale.limits, fig.show = 'hide'}
+ggplot(but_sum, aes(x = n_species, 
+                    y = abundance,
+                    color = hab_type)) +
+  geom_point() +
+  geom_smooth(method="lm") +
+  scale_y_continuous(limits = c(0, 300)) #<<
+```
+Si limitamos la escala, "borramos" los puntos que se quedan fuera del límite, y dejan de ser considerados para estimar las líneas de tendencia.
+]
+
+.pull-right[
+```{r ref.label = 'scale.limits', echo = FALSE, warning=F, message=F}
+```
+]
+
+---
+
+### 5. Scale vs. Geometry 
+
+Limitar la escala del eje vs recortar el eje
+
+.pull-left[
+```{r coords.limits, fig.show = 'hide'}
+ggplot(but_sum, aes(x = n_species, 
+                    y = abundance,
+                    color = hab_type)) +
+  geom_point() +
+  geom_smooth(method ="lm") +
+  coord_cartesian(ylim = c(0, 300)) #<<
+```
+
+Si limitamos el eje, "recortamos" el gráfico (en este caso hacemos un zoom). Los puntos que quedan fuera del límite siguen siendo considerandos y se mantienen para el calculo de la línea de tendencia.
+]
+
+.pull-right[
+```{r ref.label = 'coords.limits', echo = FALSE, message=F, warning=F}
+```
+]
+
+---
+
+### Más geoms
+
+Lineas horizontales y verticales
+
+.pull-left[
+```{r lines, fig.show = 'hide'}
+ggplot(but_sum, aes(x = n_species, 
+                    y = abundance)) +
+  geom_point() +
+  geom_vline(xintercept = 30) + #<<
+  geom_hline(yintercept = c(250, 750), #<<
+             color = "red") #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'lines', echo = FALSE, message=F}
+```
+]
+
+---
+
+### 7. Labs
+
+Añadir título, nombre de ejes y leyenda
+
+.pull-left[
+```{r labs, fig.show = 'hide'}
+ggplot(but_sum, aes(x = n_species, 
+                    y = abundance)) +
+  geom_point() +
+  labs(x = "No. de especies", #<<
+       y = "Abundancia", #<<
+       title = "Muestreos de mariposas en Vietnam", #<<
+       caption = "cada punto representa un muestreo") #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'labs', echo = FALSE, message=F}
+```
+]
+
+---
+
+### Ejercicio 3
+
+Crear una gráfico lo más similar a este:
+
+```{r ej3.1, echo = FALSE}
+ggplot(but_sum, aes(x = date, 
+                    y = n_species, 
+                    color = abundance)) +
+  geom_point() +
+  scale_color_distiller(palette = "Spectral") + 
+  labs(x = "Año",
+       y = "Número de especies",
+       title = "Muestreos de mariposas en Vietnam",
+       subtitle = "Datos de Bonebrake et al. 2016",
+       color = "Abundancia")
+```
+
+---
+
+### Ejercicio 3
+
+.pull-left[
+```{r ej3.2, fig.show = 'hide'}
+ggplot(but_sum, aes(x = date, 
+                    y = n_species, 
+                    color = abundance)) +
+  geom_point() +
+  scale_color_distiller(palette = "Spectral") + 
+  labs(x = "Año", 
+       y = "Número de especies",
+       title = "Muestreos de mariposas en Vietnam",
+       subtitle = "Datos de Bonebrake et al. 2016",
+       color = "Abundancia")
+```
+]
+
+.pull-right[
+```{r ref.label = 'ej3.2', echo = FALSE, message=F}
+```
+]
+
+---
+
+### GGplotly
+
+```{r message=F, warning=F}
+library(plotly)
+ggplotly()
+```
+
+---
+
+### Otros geoms - Box-plot
+
+.pull-left[
+```{r bp, fig.show = 'hide'}
+ggplot(but_sum, 
+       aes(x = habitat,
+           y = n_species)) +
+  geom_boxplot() 
+```
+]
+
+.pull-right[
+```{r ref.label = 'bp', echo = FALSE, message=F}
+```
+]
+
+---
+
+### Geoms - Box-plot
+
+.pull-left[
+```{r bp2, fig.show = 'hide'}
+ggplot(but_sum, 
+       aes(x = habitat,
+           y = n_species)) +
+  geom_boxplot() +
+  geom_jitter(alpha=0.5)
+```
+]
+
+.pull-right[
+```{r ref.label = 'bp2', echo = FALSE, message=F}
+```
+]
+
+---
+
+### Variable continua vs. factor
+
+Si queremos hacer un boxplot que muestre el numero de especies por año.
+
+.pull-left[
+```{r bp3, fig.show = 'hide'}
+but_sum %>%
+  mutate(year = lubridate::year(date)) %>% #<<
+  ggplot(aes(x = year, 
+             y = n_species)) +
+  geom_boxplot()
+```
+]
+
+.pull-right[
+```{r ref.label = 'bp3', echo = FALSE, message=F, warning=F}
+```
+]
+
+---
+
+### Variable continua vs. factor
+
+Si queremos hacer un boxplot que muestre el numero de especies por año - asegurar que la variable año es un factor.
+
+.pull-left[
+```{r bp4, fig.show = 'hide'}
+but_sum %>%
+  mutate(year = lubridate::year(date)) %>% 
+  mutate(year = as.factor(year)) %>% #<<
+  ggplot(aes(x = year, 
+             y = n_species)) +
+  geom_boxplot()
+```
+]
+
+.pull-right[
+```{r ref.label = 'bp4', echo = FALSE, message=F}
+```
+]
+
+---
+
+### Posición de los aesthetics
+
+.pull-left[
+```{r bp5, fig.show = 'hide'}
+but_sum %>%
+  mutate(year = lubridate::year(date)) %>%
+  ggplot(aes(x = as.factor(year), 
+             y = n_species)) +
+  geom_boxplot() +
+  geom_jitter(alpha = 0.5, 
+              aes(color = habitat)) #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'bp5', echo = FALSE, message=F}
+```
+]
+
+---
+
+### Posición de los aesthetics
+
+.pull-left[
+```{r bp6, fig.show = 'hide'}
+but_sum %>%
+  mutate(year = lubridate::year(date)) %>%
+  ggplot(aes(x = as.factor(year),
+             y = n_species, 
+             color = habitat)) + #<<
+  geom_boxplot() +
+  geom_jitter(alpha=0.3)
+```
+]
+
+.pull-right[
+```{r ref.label = 'bp6', echo = FALSE, message=F}
+
+```
+]
+
+---
+
+### Geoms - Gráfico de barras
+
+.pull-left[
+```{r bars, fig.show = 'hide'}
+ggplot(but_sum,
+       aes(x = habitat)) + 
+  geom_bar()
+```
+geom_bar usa la funcion `stat_count()` por defecto.
+Representa el número (cuenta) de observaciones por hábitat, en este caso de muestreos.
+]
+
+.pull-right[
+```{r ref.label = 'bars', echo = FALSE, message=F}
+```
+]
+
+---
+
+### Geoms - Gráfico de 'quesos'
+
+Pie-chart
+
+.pull-left[
+```{r bar_polar, fig.show = 'hide'}
+ggplot(but_sum, 
+       aes(x = habitat,
+           fill = habitat)) +
+  geom_bar() + 
+  coord_polar() #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'bar_polar', echo = FALSE, warning = F}
+```
+]
+
+---
+
+### Geoms - Gráfico de barras
+
+Gráfico de barras para datos sumarizados
+
+.pull-left[
+```{r col, fig.show = 'hide'}
+but_sum %>%
+  group_by(habitat) %>%
+  summarise(mean_abundance = mean(abundance)) %>%
+  ggplot(aes(x = habitat,
+             y = mean_abundance)) + 
+  geom_col() #<<
+```
+
+Alternativa (mismo resultado):
+```{r, eval=F}
+but_sum %>%
+  group_by(habitat) %>%
+  summarise(mean_abundance = mean(abundance)) %>%
+  ggplot(aes(x = habitat,
+             y = mean_abundance)) +  
+  geom_bar(stat = "identity") #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'col', echo = FALSE, message=F}
+```
+]
+
+---
+
+### Geoms - Gráfico de barras
+
+Gráfico de barras apilados
+
+.pull-left[
+```{r stacked.bar, fig.show = 'hide'}
+but_sum %>% 
+  mutate(year = lubridate::year(date)) %>%
+  ggplot(aes(x = as.factor(year),
+             fill = habitat)) + #<<
+  geom_bar() +
+  MetBrewer::scale_fill_met_d("Archambault")
+```
+]
+
+.pull-right[
+```{r ref.label = 'stacked.bar', echo = FALSE, message=F}
+```
+]
+
+---
+
+### Geoms - Histograma
+
+.pull-left[
+```{r hist, fig.show = 'hide'}
+ggplot(but_sum,
+       aes(x = n_species)) + 
+  geom_histogram() #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'hist', echo = FALSE, message=F}
+```
+]
+
+---
+
+### Geoms - Histograma
+
+.pull-left[
+```{r hist2, fig.show = 'hide'}
+ggplot(but_sum, 
+       aes(x = n_species)) + 
+  geom_histogram(color = "blue",
+                 bins = 10) #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'hist2', echo = FALSE, message=F}
+```
+]
+
+---
+
+### Geoms - Histograma
+
+.pull-left[
+```{r hist3, fig.show = 'hide'}
+ggplot(but_sum,
+       aes(x = n_species)) + 
+  geom_histogram(color = "blue",
+                 binwidth = 1) #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'hist3', echo = FALSE, message=F}
+```
+]
+
+---
+
+### Geoms - Densidad
+
+.pull-left[
+```{r density, fig.show = 'hide'}
+ggplot(but_sum,
+       aes(x = n_species)) + 
+  geom_density() #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'density', echo = FALSE, message=F}
+```
+]
+
+---
+
+### Geoms - Densidad
+
+.pull-left[
+```{r density2, fig.show = 'hide'}
+ggplot(but_sum,
+       aes(x = n_species,
+           color = hab_type)) + #<<
+  geom_density() 
+```
+]
+
+.pull-right[
+```{r ref.label = 'density2', echo = FALSE, message=F}
+```
+]
+
+---
+
+### Geoms - Densidad
+
+.pull-left[
+```{r density3, fig.show = 'hide'}
+ggplot(but_sum,
+       aes(x = n_species,
+           color = hab_type,
+           fill = hab_type)) + 
+  geom_density(alpha = 0.5)
+```
+]
+
+.pull-right[
+```{r ref.label = 'density3', echo = FALSE, message=F}
+```
+]
+
+---
+
+### Ejercicio 4:
+
+Hacer un violin plot (`geom_violin`) del número de especies de mariposas por hábitat donde el color represente el tipo de hábitat (forest vs. open)
+
+---
+
+
+### Ejercicio 4:
+
+Hacer un violin plot (`geom_violin`) del número de especies de mariposas por hábitat donde el color represente el tipo de hábitat (forest vs. open)
+
+.pull-left[
+```{r ej4, fig.show = 'hide'}
+ggplot(but_sum, 
+       aes(x = habitat,
+           y = n_species,
+           fill = hab_type)) +
+  geom_violin(alpha = 0.5) +
+  scale_fill_manual(values = 
+         c("dark green", "brown")) +
+  labs(title = "Muestreo de mariposas en Vietnam de 2003-2013",
+       y = "Número de especies",
+       x = NULL)
+```
+]
+
+.pull-right[
+```{r ref.label = 'ej4', echo = FALSE, warning = F}
+```
+]
+
+---
+
+### 8. Facets
+
+.pull-left[
+```{r facet, fig.show = 'hide'}
+ggplot(but_sum , 
+       aes(x = n_species)) +
+  geom_histogram() +
+  facet_wrap(~ habitat) #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'facet', echo = FALSE, message = F}
+```
+]
+
+---
+
+### 8. Facets
+
+.pull-left[
+```{r facet2, fig.show = 'hide'}
+but_sum %>%
+  filter(habitat != "unknown") %>%
+  ggplot(aes(x = n_species)) +
+  geom_histogram() +
+  facet_wrap(~ habitat,
+             scales = "free") + #<<
+  labs(caption =
+         "note different axes scales")
+```
+]
+
+.pull-right[
+```{r ref.label = 'facet2', echo = FALSE, warning = F, message = F}
+```
+]
+
+---
+
+### 8. Facets
+
+.pull-left[
+```{r facet3, fig.show = 'hide'}
+but_sum %>%
+  filter(habitat != "unknown") %>%
+  mutate(year = as.factor(
+    lubridate::year(date))) %>%
+  ggplot(aes(x = n_species)) +
+  geom_histogram() +
+  facet_grid(year ~ habitat) #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'facet3', echo = FALSE, warning = F, message = F}
+```
+]
+
+---
+
+### 9. Themes
+
+.pull-left[
+```{r theme1, fig.show = 'hide'}
+ggplot(but_sum,
+       aes(x = habitat,
+           y = n_species,
+           color = hab_type)) +
+  geom_boxplot() +  
+  theme(legend.position = "bottom", #<<
+        axis.text.x = element_blank()) #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'theme1', echo = FALSE, warning = F, message = F}
+```
+]
+
+---
+
+### 9. Themes
+
+.pull-left[
+```{r theme2, fig.show = 'hide'}
+ggplot(but_sum,
+       aes(x = habitat,
+           y = n_species,
+           color = hab_type)) +
+  geom_boxplot() +  
+  theme(legend.position = "none", #<<
+        axis.text.x = element_text( #<<
+          angle = 90, hjust = 0, vjust = 0.5)) #<<
+```
+]
+
+.pull-right[
+```{r ref.label = 'theme2', echo = FALSE, warning = F, message = F}
+```
+]
+
+---
+
+### 9. Themes
+
+```{r, eval=F}
+?theme
+```
+
+- element_blank()
+- element_text()
+- element_line()
+- element_rect() (borders & backgrounds)
+
+---
+
+### 9. Themes
+
+.pull-left[
+```{r theme3, fig.show = 'hide'}
+ggplot(but_sum,
+       aes(x = n_species,
+           y = abundance)) +
+  geom_point() +  
+  theme_minimal()
+```
+]
+
+.pull-right[
+```{r ref.label = 'theme3', echo = FALSE, warning = F, message = F}
+```
+]
+
+---
+
+### 9. Themes
+
+.pull-left[
+```{r theme4, fig.show = 'hide'}
+ggplot(but_sum,
+       aes(x = n_species,
+           y = abundance)) +
+  geom_point(color= "white") +  
+  theme_dark()
+```
+]
+
+.pull-right[
+```{r ref.label = 'theme4', echo = FALSE, warning = F, message = F}
+```
+]
+
+---
+
+### 9. Themes
+
+.pull-left[
+```{r theme5, fig.show = 'hide'}
+ggplot(but_sum,
+       aes(x = n_species,
+           y = abundance)) +
+  geom_point() + 
+  theme_void()
+```
+]
+
+.pull-right[
+```{r ref.label = 'theme5', echo = FALSE, warning = F, message = F}
+```
+]
+
+---
+
+### 9. Themes
+
+.pull-left[
+```{r message=FALSE, warning=FALSE}
+library(hrbrthemes)
+```
+
+```{r theme6, fig.show = 'hide'}
+ggplot(but_sum,
+       aes(x = n_species,
+           y = abundance)) +
+  geom_point() + 
+  hrbrthemes::theme_ipsum_rc()
+```
+]
+
+.pull-right[
+```{r ref.label = 'theme6', echo = FALSE, warning = F, message = F}
+```
+]
+
+---
+
+### 9. Themes
+
+Addin de RStudio que ayuda a cambiar la apariencia de los temas.
+
+```{r eval=F}
+library(ggThemeAssist)
+```
+
+https://github.com/calligross/ggthemeassist
+
+---
+
+### 9. Themes
+
+Existen muchos paquetes con temas predeterminados. Muchos también vienen con especificaciones para escalas de los aesthetics (scales)
+```{r eval = F}
+library(hrbrthemes)
+library(ggthemes)
+library(ggpomological)
+#devtools::install_github("gadenbuie/ggpomological")
+library(tvthemes)
+library(ggtech)
+library(ggthemr)
+library(ggsci)
+```
+
+Para fijar un tema que se aplique a todos los gráficos:
+
+```{r, eval=F}
+theme_set(theme_minimal())
+```
+
+---
+
+### 10. Composicion de figuras - Patchwork
+
+```{r}
+library(patchwork)
+```
+
+<img src= "https://patchwork.data-imaginist.com/reference/figures/logo.png", width=30%>
+
+---
+
+### 10. Composicion de figuras
+
+Nombrar los plots como objetos
+
+.pull-left[
+```{r pw1, fig.show = 'hide'}
+p1 <- ggplot(but_sum,
+       aes(x = n_species,
+           y = abundance)) +
+  geom_point(color = "#FFB90F", 
+             alpha = 0.7) + 
+  geom_smooth(color = "grey70") + 
+  theme_light() + 
+  labs(x = "No. of species",
+       y = "Abundance")
+
+p1 + labs(
+  title = "Butterfly census in tropical areas"
+)
+```
+]
+
+.pull-right[
+```{r ref.label = 'pw1', echo = FALSE, warning = F, message = F}
+```
+]
+---
+
+### 10. Composicion de figuras
+
+.pull-left[
+```{r pw2, fig.show = 'hide'}
+p2 <- 
+  ggplot(filter(but_sum, habitat != "unknown"),
+         aes(x = habitat,
+             y = n_species,
+             colour = habitat,
+             fill = habitat)) +
+  geom_boxplot(alpha = .5) +
+  geom_jitter(alpha = .5) +
+  MetBrewer::scale_fill_met_d("Derain") + 
+  MetBrewer::scale_color_met_d("Derain") + 
+  theme_light() + 
+  theme(legend.position = "none",
+        axis.text.x = element_text(
+          angle = 30, hjust = 1)) +
+  labs(y = "No. of species",
+       x = "Habitat type",)
+
+p2
+```
+]
+
+.pull-right[
+```{r ref.label = 'pw2', echo = FALSE, warning = F, message = F}
+```
+]
+
+---
+
+### 10. Composicion de figuras
+
+.pull-left[
+```{r pw3, fig.show = 'hide'}
+p1 / p2 + plot_annotation( 
+  title = "Butterfly census in Vietnam",
+  subtitle = "Bonebrake et al. 2016",
+  tag_levels = 'A')
+```
+]
+
+.pull-right[
+```{r ref.label = 'pw3', echo = FALSE, warning = F, message = F}
+```
+]
+
+---
+
+### Guardar gráficos
+
+```{r}
+plot_to_save <- p1 / p2 + plot_annotation( 
+  title = "Butterfly census in Vietnam",
+  subtitle = "Bonebrake et al. 2016",
+  tag_levels = 'A')
+```
+
+```{r}
+ggsave(plot_to_save, width = 20, units = "cm", filename = here("img/figure_1.pdf"))
+```
+
+Argumentos:
+
+- width
+- height
+- units = ("in", "cm", "mm", "px")
+- device = ("png", "pdf, "jpeg", "tiff", "svg"...)
+
+---
+
+### Otros paquetes útiles - `library(ggdist)`
+
+Graficar datos con distribuciones amplias (ej. Bayes posteriors).
+
+<img src = "https://mjskay.github.io/ggdist/reference/figures/preview.png", width=60%>
+
+https://mjskay.github.io/ggdist/
+
+---
+
+### Otros paquetes útiles - `library(ggrepel)`
+
+<img src = "https://ggrepel.slowkow.com/articles/examples_files/figure-html/remove_a_2-1.png", width=70%>
+
+https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html
+
+---
+
+### Otros paquetes útiles - `library(GGally)`
+
+Para la exploración de datos y relación entre variables.
+
+.pull-left[
+
+https://github.com/ggobi/ggally
+
+```{r eval=F}
+GGally::ggpairs(dataset)
+```
+
+]
+
+.pull-right[
+<img src = "https://r-charts.com/es/correlacion/ggpairs_files/figure-html/ggpairs.png">
+]
+
+---
+
+### Otros paquetes útiles - `library(gganimate)`
+
+<img src = "https://gganimate.com/reference/figures/README-unnamed-chunk-4-1.gif", width=70%>
+
+https://gganimate.com/
+
+---
+
+### Otros paquetes útiles - `library(ggtext)`
+
+<img src = "https://github.com/wilkelab/ggtext/raw/master/man/figures/README-unnamed-chunk-8-1.png", width=70%>
+
+https://github.com/wilkelab/ggtext
+
+---
+
+### Otros paquetes útiles - `library(ggforce)`
+
+Resaltar características de los datos.
+
+![](https://rviews.rstudio.com/post/2019-09-16-intro-to-ggforce_files/figure-html/unnamed-chunk-6-1.png)
+
+https://github.com/thomasp85/ggforce
+
+---
+
+### Más extensiones de GGplot
+
+https://exts.ggplot2.tidyverse.org/gallery/
+
+![](../img/ggplot_ext.png)
+
+---
+
+### Más extensiones de GGplot
+
+https://github.com/erikgahner/awesome-ggplot2
+
+![](../img/awesome_ggplot.png)
+
+---
+
+### #TidyTuesday
+
+&nbsp;
+
+.center[<img src = "https://github.com/rfordatascience/tidytuesday/raw/master/static/tt_logo.png", width=70%>]
+
+https://github.com/rfordatascience/tidytuesday
+
+---
+
+# Recursos
+
+- [Referencia oficial Ggplot2](https://ggplot2.tidyverse.org/reference/)
+
+- [Ggplot2 book - Hadley Wickham](https://ggplot2-book.org/)
+
+- [R for Data Science Book - 3. Data visualization](https://r4ds.had.co.nz/data-visualisation.html)
+
+- [R Graphics Cookbook, 2nd edition - Winston Chang](https://r-graphics.org/)
+
+- [Fundamentals of Data Visualization - Claus O. Wilke](https://clauswilke.com/dataviz/)
+
+- [RStudio CheatSheets - *"Data visualization with ggplot2"*](https://www.rstudio.com/resources/cheatsheets/)
+
+.right[<img src= "https://ggplot2.tidyverse.org/logo.png", width=15%>]
+
+---
+
+<font size ="6">Ejemplo con el dataset de waste_world</font>
+
+```{r read.data, echo=FALSE, results='hide', message=F}
+waste_world <- read_csv(here("data/waste_world.csv"))
+```
+
+```{r filter.data, echo=FALSE, results='hide', message=F}
+waste_world_mod <- waste_world %>%
+  mutate(waste_per_capita = total_waste/population) %>%
+  filter(!is.na(waste_per_capita) & !is.na(continent))
+```
+
+```{r figure.1, echo=F, message=F, warning=F,  fig.width=15, fig.height=8}
+ggplot(waste_world_mod, aes(
+            x = waste_per_capita,
+            y = gdp,
+            color = continent)) +
+  geom_point(alpha = 0.7, 
+             size = 2) + 
+  rcartocolor::scale_color_carto_d("Vivid") +
+  ggrepel::geom_text_repel(data = waste_world_mod %>%  #mostar solo la etiqueta para aquellos paises con mas waste/caita o gdp
+                             filter(waste_per_capita > 0.8 | 
+                                      gdp > 80000), 
+                           aes(x = waste_per_capita, 
+                               y = gdp, 
+                               label = country_name),
+                           size = 3,
+                           show.legend = FALSE) + #para que no muestre texto en la leyenda 
+  theme_minimal() + 
+  theme(legend.position = "bottom") + 
+  labs(x = "Waste per cápita (tones per year)",
+       y = "Gross Domestic Product (GDP)")
+```
+
+---
+
+<font size ="6">Ejemplo con el dataset de waste_world</font>
+
+Leer datos:
+```{r, ref.label = 'read.data'}
+```
+
+---
+
+<font size ="6">Ejemplo con el dataset de waste_world</font>
+
+Generar dataset para la figura:
+```{r ref.label = 'filter.data'}
+```
+
+---
+
+<font size ="6">Ejemplo con el dataset de waste_world</font>
+
+Código de la gráfica:
+```{r ref.label = 'figure.1', fig.show='hide', warning=F}
+```
+
+---
+
+<font size ="6">Ejemplo con el dataset de waste_world</font>
+
+```{r filter.data2, echo=F, results='hide'}
+waste_world_mod2 <- waste_world %>%
+  mutate(waste_per_capita = total_waste/population) %>%
+  filter(!is.na(waste_per_capita) & !is.na(continent)) %>%
+  filter(continent != "Seven seas (open ocean)")
+```
+
+```{r figure.2, echo=F, message=FALSE, warning=F, fig.width=15, fig.height=8}
+ggplot(waste_world_mod2, aes(
+            x = waste_per_capita,
+            y = gdp,
+            color = continent,
+            size = population)) +
+  geom_point(alpha = 0.8) + 
+  rcartocolor::scale_color_carto_d("Vivid") +
+  ggrepel::geom_text_repel(data = waste_world_mod2 %>% #código para seleccionar que etiquetas mostrar
+                             group_by(continent) %>% 
+                             mutate(order = waste_per_capita*gdp) %>% #variable en la que basar qué etiquetas se muestran
+                             arrange(desc(order)) %>% #ordenar por continente los países que tengan más waste/capita * gpd
+                             slice(1:3), #seleccionar los 3 países con valores más altos
+                           aes(x = waste_per_capita, 
+                               y = gdp, 
+                               label = country_name),
+                            force = 100, #repulsion entre etiquetas
+                           size = 3) + #tamaño de la etiqueta
+  theme_bw() + 
+  theme(legend.position = "none") + 
+  facet_wrap(~continent) +
+  labs(x = "Waste per cápita (tones per year)",
+       y = "Gross Domestic Product (GDP)",
+       size = "Population",
+       caption = "Point size represents population")
+```
+
+---
+
+<font size ="6">Ejemplo con el dataset de waste_world</font>
+
+Generar dataset para la gráfica 2:
+
+```{r ref.label = 'filter.data2'}
+```
+
+---
+
+<font size ="6">Ejemplo con el dataset de waste_world</font>
+
+Código de la gráfica 2:
+```{r ref.label = 'figure.2', fig.show='hide'}
+```
